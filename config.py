@@ -3,6 +3,8 @@ import os
 # Paths
 BASE_PATH = 'dataset/leapGestRecog'
 MODEL_SAVE_PATH = 'best_gesture_model.h5'
+RESULTS_DIR = 'results'
+README_PATH = 'README.md'
 
 # Image Parameters
 IMG_SIZE = 64 # 64x64 is optimal for this dataset while saving VRAM

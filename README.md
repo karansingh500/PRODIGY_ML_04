@@ -65,7 +65,7 @@ Prints final test accuracy after training.
 
 ### `evaluate_model.py`
 
-Reloads the saved `.h5` and the same split (same `random_state=42`). Prints a sklearn classification report and a confusion matrix. Use this to see which classes mix up on **dataset** images (not the webcam).
+Reloads the saved `.h5` and the same split (`random_state=42`). It writes two graphs under `results/` (confusion matrix and per-class bars), then **replaces only the evaluation block at the bottom of this README** with those images and a short explanation. Re-run it after training to refresh the charts. These scores are for **Leap dataset** images, not the webcam.
 
 ### `predict_webcam.py`
 
@@ -105,7 +105,7 @@ Webcam BGR  →  MediaPipe hand  →  isolated crop  →  same Canny
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-pip install tensorflow opencv-python mediapipe scikit-learn numpy
+pip install tensorflow opencv-python mediapipe scikit-learn numpy matplotlib
 ```
 
 Dataset layout:
@@ -122,7 +122,7 @@ dataset/leapGestRecog/09/10_down/*.png
 .\.venv\Scripts\python.exe predict_webcam.py
 ```
 
-Press **q** to quit the webcam. One hand, reasonable light. For **DOWN**, point fingers at the bottom of the image. For **MOVED** classes, wave the hand; holding still stays `FIST` / `PALM`.
+`evaluate_model.py` saves PNG charts and updates the evaluation section below. Press **q** to quit the webcam. One hand, reasonable light. For **DOWN**, point fingers at the bottom of the image. For **MOVED** classes, wave the hand; holding still stays `FIST` / `PALM`.
 
 ---
 
@@ -176,7 +176,7 @@ TF 2.x reports that GPU is not used on native Windows. Training and webcam infer
 
 - `palm` vs `palm_moved` (and fist vs fist_moved) need visible motion; a still hand will not get the `_moved` label.
 - `C` vs open palm can still mix if the curve is shallow.
-- The CNN’s own accuracy should be judged with `evaluate_model.py` on Leap images, not only by watching the webcam.
+- The CNN’s own accuracy should be judged with `evaluate_model.py` on Leap images (graphs below), not only by watching the webcam.
 
 ---
 
@@ -186,3 +186,49 @@ TF 2.x reports that GPU is not used on native Windows. Training and webcam infer
 | --- | --- |
 | `best_gesture_model.h5` | Best CNN weights |
 | `models/hand_landmarker.task` | MediaPipe detector (auto-download) |
+| `results/confusion_matrix.png` | Test-set confusion heatmap (from `evaluate_model.py`) |
+| `results/per_class_metrics.png` | Per-class precision / recall / F1 bars |
+
+<!-- prodigy-eval-start -->
+## Evaluation results (auto-generated)
+
+This block is **rewritten every time** you run `evaluate_model.py`. Charts are saved under `results/` and embedded below.
+
+These numbers are from the **held-out 20% LeapGestRecog test split** (same stratified split as training: `random_state=42`). They measure the CNN on infrared dataset images, **not** the webcam demo.
+
+Last run: 2026-08-30 05:11 UTC
+
+| Metric | Value |
+| --- | --- |
+| Test accuracy | **99.95%** |
+| Macro F1 | 0.9995 |
+| Weighted F1 | 0.9995 |
+| Strongest class (F1) | `01_palm` (1.0000) |
+| Weakest class (F1) | `06_index` (0.9975) |
+
+### Confusion matrix
+
+Each **row** is the true gesture; each **column** is what the CNN predicted. A dark diagonal means most Leap test images are classified correctly. Off-diagonal cells are mix-ups. Classes that look similar in a still photo (`fist` vs `fist_moved`, `palm` vs `palm_moved`) often share a few mistakes because the dataset labels motion that a single frame barely shows.
+
+![Confusion matrix](results/confusion_matrix.png)
+
+Largest mix-ups on this run:
+
+- `palm_moved` predicted as `index`: **1** test image
+- `l` predicted as `index`: **1** test image
+
+### Per-class precision, recall, and F1
+
+- **Precision** — of the images the model called this class, how many really were.
+- **Recall** — of the true images of this class, how many the model found.
+- **F1** — balance of the two.
+
+Bars near 1.0 mean that class is easy on the Leap test set. A lower bar is the class to inspect first (often a motion variant or a pose that overlaps another, such as `c` vs `palm`).
+
+![Per-class metrics](results/per_class_metrics.png)
+
+### How to read this vs the webcam
+
+High scores here only mean the CNN matches LeapGestRecog edges. A color webcam is a different domain, which is why `predict_webcam.py` uses MediaPipe landmarks for the live label and still shows the CNN edge crop in a debug window.
+
+<!-- prodigy-eval-end -->
