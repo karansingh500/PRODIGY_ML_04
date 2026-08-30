@@ -1,0 +1,8 @@
+{
+    "python.defaultInterpreterPath": "D:\\CODE\\PRODIGY_ML_04\\.venv\\Scripts\\python.exe",
+    "python.analysis.extraPaths": [
+        "D:\\CODE\\PRODIGY_ML_04\\.venv\\Lib\\site-packages"
+    ],
+    "python-envs.defaultEnvManager": "ms-python.python:system",
+    "python-envs.defaultPackageManager": "ms-python.python:pip"
+}
